@@ -1,4 +1,6 @@
-import { BsTextParagraph, BsQrCode } from "react-icons/bs";
+import { BsTextParagraph, BsQrCode, BsClock } from "react-icons/bs";
+import { RiTeamLine } from "react-icons/ri";
+
 export const tools = [
   {
     category: "Calculation",
@@ -20,6 +22,12 @@ export const tools = [
         icon: <BsQrCode />,
         link: "/qr-code-generator",
       },
+      {
+        name:'Random Team',
+        description: "Online tool for generating random team",
+        icon: <RiTeamLine />,
+        link: "/random-team",
+      }
     ],
   },
 ];
