@@ -1,3 +1,4 @@
+import Link from "next/link";
 import SearchBar from "./components/SearchBar";
 import ToolCard from "./components/ToolCard";
 import { tools } from "./data/tools";
@@ -17,7 +18,7 @@ export default function Home() {
             <span className="text-muted">in one place.</span>
           </h1>
           <p className="mt-6 max-w-lg text-lg text-muted">
-            {total} tools in {tools.length} categories. Open one from the shelf below, or jump straight to it from the keyboard.
+            {total} tools in {tools.length} categories, ready when you need them. <br></br> Made by <Link href="https://www.galuhsatria.space" target="_blank" className="text-primary">@galuhsatria</Link>
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
             <SearchBar />
