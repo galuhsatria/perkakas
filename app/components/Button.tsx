@@ -1,13 +1,16 @@
 interface Props {
   label: string;
-  onClick: () => void;
+  onClick?: () => void;
   className?: string;
 }
 
-export default function Button(props: Props) {
+export default function Button({ label, onClick, className = "" }: Props) {
   return (
-    <button onClick={props.onClick} className={`py-2 px-4 bg-blue-600 text-white border border-black shadow-[6px_6px_0_0_#000000] hover:shadow-[8px_8px_0_0_#000000] transition-shadow cursor-pointer ${props.className}`}>
-      {props.label}
+    <button
+      onClick={onClick}
+      className={`rounded-md bg-primary px-6 py-3 font-semibold text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${className}`}
+    >
+      {label}
     </button>
   );
 }

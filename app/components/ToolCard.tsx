@@ -1,5 +1,5 @@
-"use client";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 
 interface Props {
   name: string;
@@ -8,16 +8,30 @@ interface Props {
   link: string;
 }
 
-export default function ToolCard(props: Props) {
-  const { name, description, icon, link } = props;
-  const router = useRouter();
+export default function ToolCard({ name, description, icon, link }: Props) {
   return (
-    <div onClick={() => router.push(link)} className="w-full p-4 rounded-md border border-black shadow-[6px_6px_0_0_#000000] hover:shadow-[8px_8px_0_0_#000000] transition-shadow cursor-pointer">
-      <div className="w-14 border border-black shadow-[3px_3px_0_0_#000000] text-center text-xl rounded-lg p-4">{icon}</div>
-      <div className="mt-4">
-        <h3 className="text-xl font-bold ">{name}</h3>
-        <p className="text-slate-500">{description}</p>
+    <Link
+      href={link}
+      className="group relative flex min-h-[200px] flex-col overflow-hidden rounded-xl border border-edge bg-panel p-5 transition-colors hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+    >
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -bottom-8 -right-8 h-40 w-40 rotate-12 text-white/[0.04] transition-colors group-hover:text-primary/15 [&_svg]:h-full [&_svg]:w-full"
+      >
+        {icon}
+      </span>
+
+      <div className="relative flex items-start justify-between">
+        <span className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary/10 text-xl text-primary">
+          {icon}
+        </span>
+        <ArrowUpRight className="h-4 w-4 text-muted transition-colors group-hover:text-fg" />
       </div>
-    </div>
+
+      <div className="relative mt-auto pt-8">
+        <h3 className="text-lg font-bold text-fg">{name}</h3>
+        <p className="mt-1 max-w-[85%] text-sm leading-relaxed text-muted">{description}</p>
+      </div>
+    </Link>
   );
 }

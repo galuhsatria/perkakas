@@ -1,43 +1,52 @@
-"use client";
-import Link from "next/link";
+import SearchBar from "./components/SearchBar";
 import ToolCard from "./components/ToolCard";
 import { tools } from "./data/tools";
-import Button from "./components/Button";
-import { useRouter } from "next/navigation";
+
+const key = "rounded-md border border-edge bg-panel px-2 py-0.5 text-xs font-semibold text-fg";
+
 export default function Home() {
-  const router = useRouter();
+  const total = tools.reduce((sum, g) => sum + g.site.length, 0);
+
   return (
-    <main className="layout">
-      <section>
+    <div className="mx-auto w-full max-w-6xl px-5 py-6 sm:px-10 lg:py-20">
+      <section className="relative grid items-center gap-8 md:grid-cols-[1fr_auto]">
         <div>
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold capitalize">Your favorite online tools are here</h1>
-            <p className="text-slate-400 mt-2">
-              Here are some free online tools made by{" "}
-              <Link href={"https://galuhsatria.vercel.app/"} className="text-blue-600" target="_blank">
-                @galuhsatria
-              </Link>
-            </p>  
+          <h1 className="text-3xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl lg:text-5xl">
+            Every small tool I use,
+            <br />
+            <span className="text-muted">in one place.</span>
+          </h1>
+          <p className="mt-6 max-w-lg text-lg text-muted">
+            {total} tools in {tools.length} categories. Open one from the shelf below, or jump straight to it from the keyboard.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+            <SearchBar />
           </div>
-          <Button label="Get Started" onClick={() => router.push("#tools")} />
+          <p className="mt-5 flex flex-wrap items-center gap-2 text-sm text-muted">
+            <kbd className={key}>Ctrl</kbd>
+            <kbd className={key}>K</kbd>
+            <span>or</span>
+            <kbd className={key}>/</kbd>
+            <span>to search from anywhere</span>
+          </p>
         </div>
       </section>
-      <section className="flex flex-col gap-6 pt-16"  id="tools">
-        <div>
-          {tools.map((tool, index) => (
-            <div key={index}>
-              <h1 key={index} className="font-bold text-xl">
-                {tool.category}
-              </h1>
-              <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5 py-5">
-                {tool.site.map((site, index) => (
-                  <ToolCard key={index} {...site} />
-                ))}
-              </div>
+
+      <div className="mt-14 flex flex-col gap-8">
+        {tools.map((g) => (
+          <section key={g.category}>
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl font-bold">{g.category}</h2>
+              <span className="rounded-full border border-edge px-2.5 py-0.5 text-xs text-muted">{g.site.length}</span>
             </div>
-          ))}
-        </div>
-      </section>
-    </main>
+            <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              {g.site.map((s) => (
+                <ToolCard key={s.link} {...s} />
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+    </div>
   );
 }
