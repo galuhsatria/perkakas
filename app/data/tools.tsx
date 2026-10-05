@@ -1,4 +1,4 @@
-import { BsTextParagraph, BsQrCode, BsClock, BsWhatsapp, BsFiletypeJson, BsImage, BsPhone } from 'react-icons/bs';
+import { BsTextParagraph, BsQrCode, BsClock, BsWhatsapp, BsFiletypeJson, BsImage, BsPhone, BsWindowStack } from 'react-icons/bs';
 import { RiTeamLine } from 'react-icons/ri';
 
 export const tools = [
@@ -73,6 +73,12 @@ export const tools = [
         description: 'Remove the background from any image, right in your browser.',
         icon: <BsImage />,
         link: '/background-remover',
+      },
+      {
+           name: 'Screenshot Editor',
+           description: 'Create beautiful Screenshots by adding frames, backgrounds, etc.',
+           icon: <BsWindowStack />,
+           link: '/screenshot-editor',
       },
     ],
   },
