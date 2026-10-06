@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={inter.variable}>
       <body className="bg-base font-sans text-fg antialiased">
         <PWARegister/>
-        <NextTopLoader showSpinner={false}/>
+        <NextTopLoader showSpinner={false} color="#FF6B3D"/>
         <AppShell>{children}</AppShell>
       </body>
     </html>
