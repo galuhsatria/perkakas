@@ -270,7 +270,7 @@ export default function Page() {
         your browser, nothing is uploaded.
       </p>
 
-      <div className="mt-10 grid gap-6 lg:grid-cols-[1fr_340px]">
+      <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">
         {/* Previews */}
         <section className={card}>
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -293,7 +293,6 @@ export default function Page() {
                   style={checker}
                 >
                   {previews[i.file] && (
-                    // eslint-disable-next-line @next/next/no-img-element
                     <img src={previews[i.file]} alt={i.file} className="h-full w-full object-contain" />
                   )}
                   {i.kind === "maskable" && (

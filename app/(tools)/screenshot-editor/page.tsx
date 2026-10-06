@@ -45,9 +45,6 @@ const checker = {
   backgroundSize: "16px 16px",
 };
 
-/* ------------------------------------------------------------------ */
-/* Dropdown: custom listbox (keyboard + screen reader friendly)        */
-/* ------------------------------------------------------------------ */
 function Dropdown<T extends string>({
   label,
   caption,
@@ -296,9 +293,6 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* Capture options popover (sits inside the URL field)                 */
-/* ------------------------------------------------------------------ */
 function CaptureOptions({
   device,
   onDevice,
@@ -365,9 +359,6 @@ function CaptureOptions({
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* Crop modal: drag to select the area to keep                         */
-/* ------------------------------------------------------------------ */
 function CropModal({
   img,
   onApply,
@@ -497,7 +488,6 @@ export default function ScreenshotEditor() {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-  // The image as first loaded, so "Reset canvas" can undo crops
   const originalRef = useRef<HTMLImageElement | null>(null);
 
   const set = <K extends keyof Settings>(key: K, value: Settings[K]) => setS((prev) => ({ ...prev, [key]: value }));
@@ -551,13 +541,11 @@ export default function ScreenshotEditor() {
     [flash, loadSource]
   );
 
-  // Undo crops and put every style setting back to its default
   const resetCanvas = () => {
     if (originalRef.current) setImg(originalRef.current);
     setS((prev) => ({ ...DEFAULTS, address: prev.address }));
   };
 
-  // Paste an image from the clipboard
   useEffect(() => {
     const onPaste = (e: ClipboardEvent) => {
       const item = Array.from(e.clipboardData?.items ?? []).find((i) => i.type.startsWith("image/"));
@@ -573,7 +561,6 @@ export default function ScreenshotEditor() {
 
   const layout = useMemo(() => (img ? computeLayout(img.naturalWidth, img.naturalHeight, s) : null), [img, s]);
 
-  // Live preview (re-draw when the canvas comes back after "Replace")
   useEffect(() => {
     if (!img || !layout || !canvasRef.current) return;
     const scale = Math.min(1, 1400 / Math.max(layout.W, layout.H));
@@ -609,7 +596,6 @@ export default function ScreenshotEditor() {
     }
   };
 
-  // Ctrl/Cmd + S saves, Ctrl/Cmd + C copies the result
   const actions = useRef({ save, copy });
   actions.current = { save, copy };
   useEffect(() => {
@@ -672,7 +658,6 @@ export default function ScreenshotEditor() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-5 py-12 sm:px-10 lg:py-16">
-      {/* Hidden file input lives here so "Add your image" and "Replace" always work */}
       <input ref={fileRef} type="file" accept="image/*" className="sr-only" onChange={(e) => readFile(e.target.files?.[0])} />
 
       <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">Screenshot Editor</h1>
@@ -680,8 +665,7 @@ export default function ScreenshotEditor() {
         Add a background, a browser frame, and a soft shadow to any screenshot. Capture a website by URL, or upload your own image.
       </p>
 
-      <div className="mt-10 grid gap-6 lg:grid-cols-[360px_1fr]">
-        {/* Controls */}
+      <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-[360px_1fr]">
         <div className="flex flex-col gap-6">
           <section className={`${card} flex flex-col gap-4`}>
             <h2 className="font-bold">Frame</h2>
@@ -823,7 +807,6 @@ export default function ScreenshotEditor() {
                   style={{ maxWidth: "100%", maxHeight: "68vh", width: "auto", height: "auto" }}
                 />
 
-                {/* Floating toolbar: shows on hover / focus, always visible on touch */}
                 <div className="absolute bottom-full left-1/2 z-10 -translate-x-1/2 pb-2.5 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100">
                   <div className="relative flex divide-x divide-edge rounded-xl border border-edge bg-base shadow-xl shadow-black/50">
                     <button type="button" className={`${tool} rounded-l-xl`} onClick={() => setCropping(true)}>
