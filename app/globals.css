@@ -31,3 +31,25 @@ html {
 *:hover {
     scrollbar-color: #52525b transparent;
 }
+
+@layer components {
+    .card {
+        @apply rounded-xl border border-edge bg-panel p-5;
+    }
+
+    .input {
+        @apply w-full rounded-lg border border-edge bg-base px-3 py-2 text-fg outline-none placeholder:text-muted focus:border-primary disabled:cursor-not-allowed disabled:opacity-40;
+    }
+
+    .btn {
+        @apply flex items-center justify-center gap-2 rounded-lg border border-edge px-4 py-2 text-sm font-semibold transition-colors hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-edge;
+    }
+
+    .tool {
+        @apply flex items-center gap-2 whitespace-nowrap px-4 py-2.5 text-sm font-semibold text-fg transition-colors hover:bg-white/5 hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary;
+    }
+
+    .kbd {
+        @apply rounded border border-edge bg-base px-1.5 py-0.5 font-semibold text-fg;
+    }
+}

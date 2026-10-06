@@ -34,19 +34,24 @@ export default function Home() {
       </section>
 
       <div className="mt-14 flex flex-col gap-8">
-        {tools.map((g) => (
-          <section key={g.category}>
-            <div className="flex items-center gap-3">
-              <h2 className="text-2xl font-bold">{g.category}</h2>
-              <span className="rounded-full border border-edge px-2.5 py-0.5 text-xs text-muted">{g.site.length}</span>
-            </div>
-            <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {g.site.map((s) => (
-                <ToolCard key={s.link} {...s} />
-              ))}
-            </div>
-          </section>
-        ))}
+        {[...tools]
+          .sort((a, b) => b.site.length - a.site.length)
+          .map((g) => (
+            <section key={g.category}>
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-bold">{g.category}</h2>
+                <span className="rounded-full border border-edge px-2.5 py-0.5 text-xs text-muted">
+                  {g.site.length}
+                </span>
+              </div>
+
+              <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                {g.site.map((s) => (
+                  <ToolCard key={s.link} {...s} />
+                ))}
+              </div>
+            </section>
+          ))}
       </div>
     </div>
   );
