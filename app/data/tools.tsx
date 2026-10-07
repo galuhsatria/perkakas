@@ -1,4 +1,4 @@
-import { BsTextParagraph, BsQrCode, BsClock, BsWhatsapp, BsFiletypeJson, BsImage, BsPhone, BsWindowStack } from 'react-icons/bs';
+import { BsTextParagraph, BsQrCode, BsClock, BsWhatsapp, BsFiletypeJson, BsImage, BsPhone, BsWindowStack, BsFileEarmarkImage } from 'react-icons/bs';
 import { RiTeamLine } from 'react-icons/ri';
 
 export const tools = [
@@ -79,6 +79,12 @@ export const tools = [
            description: 'Create beautiful Screenshots by adding frames, backgrounds, etc.',
            icon: <BsWindowStack />,
            link: '/screenshot-editor',
+      },
+      {
+          name: 'Image Converter',
+          description: 'Convert images between PNG, JPG, WebP, AVIF, BMP and ICO, one file or a whole batch.',
+          icon: <BsFileEarmarkImage />,
+          link: '/image-converter',
       },
     ],
   },
