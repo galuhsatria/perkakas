@@ -84,7 +84,7 @@ export default function Page() {
 
       <div className="mt-10 grid gap-6 lg:grid-cols-[1fr_340px]">
         {/* Form */}
-        <section className={`${card} flex flex-col gap-5 py-8`}>
+        <section className={`${card} flex flex-col gap-5 py-8 h-max`}>
           <div className="grid grid-cols-[96px_1fr] gap-3">
             <label className="flex flex-col gap-1.5 text-sm">
               <span className="text-muted">Country code</span>
@@ -140,14 +140,14 @@ export default function Page() {
             />
           </label>
 
-          <div className="mt-2 flex items-center gap-4">
+          <div className="mt-2 flex items-center justify-center gap-4">
             <button onClick={reset} aria-label="Clear form" className={iconBtn}>
               <RotateCcw className="h-5 w-5" />
             </button>
             <button
               onClick={copy}
               disabled={!link}
-              className="flex min-w-[6rem] items-center justify-center gap-2 rounded-full bg-primary px-6 py-2 text-lg font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex min-w-[6rem] items-center justify-center gap-2 rounded-full bg-primary px-6 py-2 text-md font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-40"
             >
               {copied ? <Check className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
               {copied ? "Copied" : "Copy link"}

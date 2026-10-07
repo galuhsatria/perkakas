@@ -43,7 +43,7 @@ export function WordCounterEditor({
   }, [onSelect]);
 
   return (
-    <section className="rounded-xl border border-edge bg-panel p-5">
+    <section className="rounded-xl border border-edge bg-panel p-5 h-max">
       <TransformButtons value={value} onChange={onChange} previous={previous} onUndo={onUndo} />
 
       <textarea

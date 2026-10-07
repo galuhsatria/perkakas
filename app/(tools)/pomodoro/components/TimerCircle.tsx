@@ -18,7 +18,7 @@ export function TimerCircle({ mode, remaining, running, settings, onModeChange }
   const ring = mode === "focus" ? "#FF8A1F" : "#FAFAFA";
 
   return (
-    <section className={`${card} flex flex-col items-center py-8`}>
+    <section className={`flex flex-col items-center py-6`}>
       <div role="tablist" aria-label="Timer mode" className="flex rounded-full border border-edge p-1">
         {["focus", "short", "long"].map((m) => (
           <button

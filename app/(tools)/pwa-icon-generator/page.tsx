@@ -272,13 +272,13 @@ export default function Page() {
 
       <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">
         {/* Previews */}
-        <section className={card}>
+        <section className={`${card} h-max`}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="font-bold">Your icons</h2>
             <button
               onClick={downloadAll}
               disabled={!canExport || busy}
-              className="flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-1.5 font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Download className="h-4 w-4" />
               {busy ? "Preparing..." : "Download all (.zip)"}

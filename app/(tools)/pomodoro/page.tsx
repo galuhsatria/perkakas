@@ -1,4 +1,5 @@
 "use client";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTimer } from "@/lib/hooks/useTimer";
 import { useKeyboardShortcut } from "@/lib/hooks/useKeyboardShortcut";
@@ -6,10 +7,10 @@ import { useLocalStorage } from "@/lib/hooks/useLocalStorage";
 import { beep, fmt, fmtFocus, todayKey, emptyStats } from "@/lib/utils/timer";
 import { TimerCircle } from "./components/TimerCircle";
 import { TimerControls } from "./components/TimerControls";
-import { TaskInput } from "./components/TaskInput";
 import { KeyboardHints } from "./components/KeyboardHints";
 import { StatsPanel } from "./components/StatsPanel";
 import { SettingsPanel } from "./components/SettingsPanel";
+import { card } from "@/lib/ui/classes";
 
 type Mode = "focus" | "short" | "long";
 type Settings = { focus: number; short: number; long: number; interval: number; autoStart: boolean; sound: boolean; notify: boolean };
@@ -163,10 +164,11 @@ export default function Page() {
       </p>
 
       <div className="mt-10 grid gap-6 lg:grid-cols-[1fr_340px]">
-        <TimerCircle mode={mode} remaining={remaining} running={running} settings={settings} onModeChange={switchMode} />
-        <TaskInput task={task} onChange={setTask} />
-        <TimerControls running={running} onToggle={toggle} onReset={handleReset} onSkip={handleSkip} />
-        <KeyboardHints />
+        <div className={`${card} flex flex-col items-center h-max`}>
+          <TimerCircle mode={mode} remaining={remaining} running={running} settings={settings} onModeChange={switchMode} />
+          <TimerControls running={running} onToggle={toggle} onReset={handleReset} onSkip={handleSkip} />
+          <KeyboardHints />
+        </div>
 
         <div className="flex flex-col gap-6">
           <StatsPanel stats={stats} cycle={cycle} interval={settings.interval} onClear={clearStats} />
