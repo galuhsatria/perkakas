@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import { Menu, Search } from "lucide-react";
+import { useKeyboardShortcut } from "@/lib/hooks/useKeyboardShortcut";
 import Sidebar from "./Sidebar";
 import CommandPalette from "./CommandPalette";
 
@@ -9,27 +10,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const closePalette = useCallback(() => setPaletteOpen(false), []);
 
+  useKeyboardShortcut(["Meta+k", "Control+k"], () => setPaletteOpen((v) => !v));
+  useKeyboardShortcut("/", () => setPaletteOpen(true));
+
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        setPaletteOpen((v) => !v);
-        return;
-      }
-      const t = e.target as HTMLElement;
-      const typing = t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable;
-      if (e.key === "/" && !typing) {
-        e.preventDefault();
-        setPaletteOpen(true);
-      }
-    };
     const onOpen = () => setPaletteOpen(true);
-    window.addEventListener("keydown", onKey);
     window.addEventListener("open-palette", onOpen);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("open-palette", onOpen);
-    };
+    return () => window.removeEventListener("open-palette", onOpen);
   }, []);
 
   return (

@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import type { ReactNode } from "react";
 
 interface Props {
   name: string;
   description: string;
-  icon: any;
+  icon: ReactNode;
   link: string;
 }
 

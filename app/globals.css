@@ -7,6 +7,12 @@
     --color-accent: #E65B48;
     --color-surface: #FFEDEB;
     --color-border: #315F74;
+    --color-brand-primary: #FF8A1F;
+    --color-brand-secondary: #E65B48;
+    --color-ring-focus: #FAFAFA;
+    --color-mac-close: #FF5F57;
+    --color-mac-minimize: #FEBC2E;
+    --color-mac-maximize: #28C840;
 }
 
 html {

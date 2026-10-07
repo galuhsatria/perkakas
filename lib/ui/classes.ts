@@ -1,0 +1,8 @@
+export const card = "rounded-xl border border-edge bg-panel p-5";
+export const btn = "flex items-center justify-center gap-2 rounded-lg border border-edge px-3 py-1.5 text-sm font-medium transition-colors hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-edge";
+export const input = "w-full rounded-lg border border-edge bg-base px-3 py-2 text-fg outline-none focus:border-primary";
+export const iconBtn = "flex h-12 w-12 items-center justify-center rounded-full border border-edge text-muted transition-colors hover:border-primary hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary";
+export const pill = "rounded-full px-4 py-1.5 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary";
+export const errBtn = "flex items-center gap-2 rounded-md bg-white/20 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-50";
+export const textarea = "w-full resize-y rounded-lg border border-edge bg-base px-3 py-2 font-mono text-sm text-fg outline-none focus:border-primary";
+export const kbd = "rounded border border-edge bg-base px-1.5 py-0.5 text-xs text-muted";

@@ -1,215 +1,37 @@
 "use client";
-
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { AlignLeft, AlertTriangle, Check, Copy, Eraser, Eye, Minimize2, Wrench } from "lucide-react";
+import { repair, describeError, sortKeys } from "@/lib/utils/json/repair";
+import { useLocalStorage } from "@/lib/hooks/useLocalStorage";
+import { useCopyToClipboard } from "@/lib/hooks/useCopyToClipboard";
+import { card, textarea, iconBtn, pill, errBtn } from "@/lib/ui/classes";
 
 type Indent = "2" | "4" | "tab";
 type Notice = { kind: "ok" | "warn"; text: string } | null;
 type JsonError = { message: string; pos: number | null };
 
-const card = "rounded-xl border border-edge bg-panel p-5";
-const textarea =
-  "w-full resize-y rounded-lg border border-edge bg-base px-3 py-2 font-mono text-sm text-fg outline-none focus:border-primary";
-const iconBtn =
-  "flex h-12 w-12 items-center justify-center rounded-full border border-edge text-muted transition-colors hover:border-primary hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary";
-const pill =
-  "rounded-full px-4 py-1.5 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary";
-const errBtn =
-  "flex items-center gap-2 rounded-md bg-white/20 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-50";
-
 const INDENT_LABEL: Record<Indent, string> = { "2": "2 spaces", "4": "4 spaces", tab: "Tab" };
-
-function sortKeys(v: unknown): unknown {
-  if (Array.isArray(v)) return v.map(sortKeys);
-  if (v && typeof v === "object") {
-    return Object.keys(v as object)
-      .sort()
-      .reduce<Record<string, unknown>>((acc, k) => {
-        acc[k] = sortKeys((v as Record<string, unknown>)[k]);
-        return acc;
-      }, {});
-  }
-  return v;
-}
-
-function lineCol(src: string, pos: number) {
-  const before = src.slice(0, pos).split("\n");
-  return { line: before.length, col: before[before.length - 1].length + 1 };
-}
-
-// Works with the different error formats of Chrome, Firefox and Safari
-function describeError(err: unknown, src: string): JsonError {
-  const raw = err instanceof Error ? err.message : "Invalid JSON";
-  let pos: number | null = null;
-
-  const p = raw.match(/position (\d+)/);
-  const lc = raw.match(/line (\d+) column (\d+)/);
-  if (p) {
-    pos = Math.min(Number(p[1]), src.length);
-  } else if (lc) {
-    const lines = src.split("\n");
-    const line = Math.min(Number(lc[1]), lines.length);
-    let idx = 0;
-    for (let i = 0; i < line - 1; i++) idx += lines[i].length + 1;
-    pos = Math.min(idx + Number(lc[2]) - 1, src.length);
-  } else if (/end of (JSON )?input|unexpected end/i.test(raw)) {
-    pos = src.length;
-  }
-
-  let msg = raw
-    .replace(/^JSON\.parse: /, "")
-    .replace(/ of the JSON data$/, "")
-    .replace(/ in JSON at position \d+( \(line \d+ column \d+\))?/, "")
-    .replace(/ at line \d+ column \d+/, "");
-  msg = msg.charAt(0).toUpperCase() + msg.slice(1);
-
-  if (pos !== null) {
-    const { line, col } = lineCol(src, pos);
-    msg += ` at line ${line} column ${col}`;
-  }
-  return { message: msg, pos };
-}
-
-type Tok = { t: "str" | "p" | "w"; v: string };
-
-// Best-effort repair: comments, single quotes, unquoted keys, trailing or
-// missing commas, Python-style literals and unclosed brackets.
-function repair(src: string): string {
-  const toks: Tok[] = [];
-  const n = src.length;
-  let i = 0;
-
-  while (i < n) {
-    const c = src[i];
-    if (/\s/.test(c)) {
-      i++;
-      continue;
-    }
-    if (c === "/" && src[i + 1] === "/") {
-      while (i < n && src[i] !== "\n") i++;
-      continue;
-    }
-    if (c === "/" && src[i + 1] === "*") {
-      const end = src.indexOf("*/", i + 2);
-      i = end === -1 ? n : end + 2;
-      continue;
-    }
-    if (c === '"' || c === "'") {
-      let out = "";
-      i++;
-      while (i < n && src[i] !== c) {
-        if (src[i] === "\\" && i + 1 < n) {
-          out += src[i + 1] === "'" ? "'" : src[i] + src[i + 1];
-          i += 2;
-        } else if (src[i] === '"') {
-          out += '\\"';
-          i++;
-        } else if (src[i] === "\n") {
-          out += "\\n";
-          i++;
-        } else {
-          out += src[i++];
-        }
-      }
-      i++;
-      toks.push({ t: "str", v: `"${out}"` });
-      continue;
-    }
-    if ("{}[]:,".includes(c)) {
-      toks.push({ t: "p", v: c });
-      i++;
-      continue;
-    }
-    let j = i;
-    while (j < n && !/[\s{}[\]:,"']/.test(src[j])) j++;
-    toks.push({ t: "w", v: src.slice(i, j) });
-    i = j;
-  }
-
-  const literals: Record<string, string> = {
-    True: "true",
-    False: "false",
-    None: "null",
-    undefined: "null",
-    NaN: "null",
-  };
-  const isEnd = (k: Tok) => k.t !== "p" || k.v === "}" || k.v === "]";
-  const isStart = (k: Tok) => k.t !== "p" || k.v === "{" || k.v === "[";
-
-  const out: Tok[] = [];
-  const stack: string[] = [];
-
-  for (let idx = 0; idx < toks.length; idx++) {
-    let k = toks[idx];
-
-    if (k.t === "w") {
-      const next = toks[idx + 1];
-      if (next && next.t === "p" && next.v === ":") k = { t: "str", v: JSON.stringify(k.v) };
-      else if (literals[k.v]) k = { t: "w", v: literals[k.v] };
-    }
-
-    const prev = out[out.length - 1];
-
-    if (k.t === "p" && (k.v === "}" || k.v === "]")) {
-      if (prev && prev.t === "p" && prev.v === ",") out.pop();
-      const top = stack[stack.length - 1];
-      if (!top) continue; // stray closing bracket
-      stack.pop();
-      out.push({ t: "p", v: top === "{" ? "}" : "]" });
-      continue;
-    }
-
-    if (prev && isEnd(prev) && isStart(k)) out.push({ t: "p", v: "," });
-    if (k.t === "p" && (k.v === "{" || k.v === "[")) stack.push(k.v);
-    out.push(k);
-  }
-
-  let last = out[out.length - 1];
-  if (last && last.t === "p" && last.v === ",") out.pop();
-  last = out[out.length - 1];
-  if (last && last.t === "p" && last.v === ":") out.push({ t: "w", v: "null" });
-  while (stack.length) out.push({ t: "p", v: stack.pop() === "{" ? "}" : "]" });
-
-  return out.map((k) => k.v).join("");
-}
 
 function bytes(s: string) {
   return new Blob([s]).size;
 }
 
 export default function Page() {
-  const [source, setSource] = useState("");
+  const [source, setSource, loaded] = useLocalStorage("json-formatter:source", "");
   const [indent, setIndent] = useState<Indent>("2");
   const [sorted, setSorted] = useState(false);
   const [minified, setMinified] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [loaded, setLoaded] = useState(false);
+  const { copied, copy } = useCopyToClipboard();
   const [notice, setNotice] = useState<Notice>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
+    if (!loaded) return;
     try {
-      const s = localStorage.getItem("json-formatter:source");
-      if (s) setSource(s);
       const i = localStorage.getItem("json-formatter:indent") as Indent | null;
       if (i === "2" || i === "4" || i === "tab") setIndent(i);
     } catch {}
-    setLoaded(true);
-  }, []);
-
-  useEffect(() => {
-    if (!loaded) return;
-    try {
-      localStorage.setItem("json-formatter:source", source.length < 200_000 ? source : "");
-      localStorage.setItem("json-formatter:indent", indent);
-    } catch {}
-  }, [loaded, source, indent]);
-
-  useEffect(() => {
-    if (!copied) return;
-    const id = setTimeout(() => setCopied(false), 1800);
-    return () => clearTimeout(id);
-  }, [copied]);
+  }, [loaded]);
 
   const result = useMemo<{ output: string; error: JsonError | null }>(() => {
     if (!source.trim()) return { output: "", error: null };
@@ -223,22 +45,19 @@ export default function Page() {
     }
   }, [source, indent, sorted, minified]);
 
-  const copy = async () => {
+  const handleCopy = useCallback(() => {
     if (!result.output) return;
-    try {
-      await navigator.clipboard.writeText(result.output);
-      setCopied(true);
-    } catch {}
-  };
+    copy(result.output);
+  }, [result.output, copy]);
 
-  const paste = async () => {
+  const handlePaste = useCallback(async () => {
     try {
       setSource(await navigator.clipboard.readText());
       setNotice(null);
     } catch {}
-  };
+  }, [setSource]);
 
-  const autoRepair = () => {
+  const autoRepair = useCallback(() => {
     const fixed = repair(source);
     try {
       setSource(JSON.stringify(JSON.parse(fixed), null, 2));
@@ -247,9 +66,9 @@ export default function Page() {
       setSource(fixed);
       setNotice({ kind: "warn", text: "Some issues were fixed, but the JSON is still invalid." });
     }
-  };
+  }, [source, setSource]);
 
-  const showMe = () => {
+  const showMe = useCallback(() => {
     const ta = inputRef.current;
     if (!ta || !result.error || result.error.pos === null) return;
     const pos = result.error.pos;
@@ -257,9 +76,20 @@ export default function Page() {
     ta.focus();
     ta.setSelectionRange(start, Math.min(start + 1, source.length));
     const lh = parseFloat(getComputedStyle(ta).lineHeight) || 20;
-    const { line } = lineCol(source, pos);
+    const before = source.slice(0, pos).split("\n");
+    const line = before.length;
     ta.scrollTop = Math.max(0, (line - 1) * lh - ta.clientHeight / 2);
-  };
+  }, [result.error, source]);
+
+  const handleClear = useCallback(() => {
+    setSource("");
+    setNotice(null);
+  }, [setSource]);
+
+  const handleReplace = useCallback(() => {
+    if (!result.output) return;
+    setSource(result.output);
+  }, [result.output, setSource]);
 
   const status = !source.trim() ? null : result.error ? "invalid" : "valid";
 
@@ -271,21 +101,17 @@ export default function Page() {
       </p>
 
       <div className="mt-10 grid gap-6 lg:grid-cols-[1fr_1fr]">
-        {/* Input */}
         <section className={card}>
           <div className="flex items-center justify-between">
             <h2 className="font-bold">Input</h2>
-            <button onClick={paste} className="text-xs text-muted underline underline-offset-4 hover:text-fg">
+            <button onClick={handlePaste} className="text-xs text-muted underline underline-offset-4 hover:text-fg">
               Paste from clipboard
             </button>
           </div>
           <textarea
             ref={inputRef}
             value={source}
-            onChange={(e) => {
-              setSource(e.target.value);
-              setNotice(null);
-            }}
+            onChange={(e) => { setSource(e.target.value); setNotice(null); }}
             rows={20}
             spellCheck={false}
             placeholder='{"name":"Perkakas","tools":["QR Code","Pomodoro"]}'
@@ -332,7 +158,6 @@ export default function Page() {
           )}
         </section>
 
-        {/* Output */}
         <section className={card}>
           <div className="flex items-center justify-between">
             <h2 className="font-bold">Output</h2>
@@ -357,10 +182,7 @@ export default function Page() {
                   key={i}
                   role="tab"
                   aria-selected={!minified && indent === i}
-                  onClick={() => {
-                    setIndent(i);
-                    setMinified(false);
-                  }}
+                  onClick={() => { setIndent(i); setMinified(false); }}
                   className={`${pill} ${!minified && indent === i ? "bg-white/10 text-fg" : "text-muted hover:text-fg"}`}
                 >
                   {INDENT_LABEL[i]}
@@ -388,32 +210,14 @@ export default function Page() {
           </label>
 
           <div className="mt-6 flex items-center gap-4">
-            <button
-              onClick={() => {
-                setSource("");
-                setNotice(null);
-                setCopied(false);
-              }}
-              aria-label="Clear"
-              className={iconBtn}
-            >
+            <button onClick={handleClear} aria-label="Clear" className={iconBtn}>
               <Eraser className="h-5 w-5" />
             </button>
-            <button
-              onClick={copy}
-              disabled={!result.output}
-              className="flex min-w-[6rem] items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-lg font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-40"
-            >
+            <button onClick={handleCopy} disabled={!result.output} className="flex min-w-[6rem] items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-lg font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-40">
               {copied ? <Check className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
               {copied ? "Copied" : "Copy"}
             </button>
-            <button
-              onClick={() => setSource(result.output)}
-              disabled={!result.output}
-              aria-label="Replace input with output"
-              title="Replace input with output"
-              className={`${iconBtn} disabled:cursor-not-allowed disabled:opacity-40`}
-            >
+            <button onClick={handleReplace} disabled={!result.output} aria-label="Replace input with output" title="Replace input with output" className={`${iconBtn} disabled:cursor-not-allowed disabled:opacity-40`}>
               {minified ? <Minimize2 className="h-5 w-5" /> : <AlignLeft className="h-5 w-5" />}
             </button>
           </div>
