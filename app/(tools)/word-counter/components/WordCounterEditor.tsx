@@ -1,7 +1,6 @@
-"use client";
-import { useState, useCallback } from "react";
+import { btn } from "@/lib/ui/classes";
 import { Check, Copy, Trash2 } from "lucide-react";
-import { btn, input, kbd } from "@/lib/ui/classes";
+import { useCallback } from "react";
 import { FONT_SIZES } from "../constants";
 import { TransformButtons } from "./TransformButtons";
 

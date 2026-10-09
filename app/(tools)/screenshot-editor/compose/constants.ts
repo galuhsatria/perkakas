@@ -33,6 +33,7 @@ export const PATTERN_OPTIONS: { id: Pattern; label: string }[] = [
 
 export const CANVAS_PRESETS = [
   { id: "auto", label: "Auto", w: 0, h: 0 },
+  { id: "custom", label: "Custom…", w: -1, h: -1 },
   { id: "square", label: "Square 1:1", w: 1080, h: 1080 },
   { id: "ig", label: "Instagram 4:5", w: 1080, h: 1350 },
   { id: "story", label: "Story 9:16", w: 1080, h: 1920 },
@@ -99,6 +100,8 @@ export const DEFAULTS: Settings = {
   patternRotation: 0,
   patternOpacity: 25,
   canvas: "auto",
+  customW: 1080,
+  customH: 1080,
   size: 90,
   padding: 8,
   roundness: 14,

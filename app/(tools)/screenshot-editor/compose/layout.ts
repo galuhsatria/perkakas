@@ -28,6 +28,33 @@ export function computeLayout(iw: number, ih: number, s: Settings): Layout {
     };
   }
 
+  if (preset.w === -1) {
+    const W = Math.max(100, Math.min(s.customW || 1080, 4096));
+    const H = Math.max(100, Math.min(s.customH || 1080, 4096));
+    const pad = (Math.min(W, H) * s.padding) / 100;
+    const boxW = Math.max(10, W - 2 * pad);
+    const boxH = Math.max(10, H - 2 * pad);
+    const aspect = (1 - 2 * k) * (ih / iw) + 2 * k + ratio;
+    const ww = Math.min(boxW, boxH / aspect) * (s.size / 100);
+    const wh = ww * aspect;
+    const slackX = Math.max(0, boxW - ww);
+    const slackY = Math.max(0, boxH - wh);
+    return {
+      W,
+      H,
+      win: {
+        x: pad + (slackX * s.posX) / 100 + (W * s.offsetX) / 100,
+        y: pad + (slackY * s.posY) / 100 + (H * s.offsetY) / 100,
+        w: ww,
+        h: wh,
+      },
+      chrome: ww * ratio,
+      inset: ww * k,
+      slackX,
+      slackY,
+    };
+  }
+
   const W = preset.w;
   const H = preset.h;
   const pad = (Math.min(W, H) * s.padding) / 100;

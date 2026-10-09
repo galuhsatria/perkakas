@@ -274,6 +274,48 @@ export function SettingsPanel({ s, setS, hasImage, exportScale, onExportScale, c
             onChange={(v) => set("canvas", v)}
             options={CANVAS_PRESETS.map((p) => ({ id: p.id, label: p.label }))}
           />
+          {s.canvas === "custom" && (
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted" htmlFor="custom-w">Width</label>
+                <input
+                  id="custom-w"
+                  type="number"
+                  min="100"
+                  max="4096"
+                  step="1"
+                  value={s.customW}
+                  onChange={(e) => set("customW", parseInt(e.target.value) || 0)}
+                  onBlur={(e) => {
+                    const v = parseInt(e.target.value) || 100;
+                    set("customW", Math.max(100, Math.min(4096, v)));
+                  }}
+                  className="input w-full"
+                  aria-label="Custom canvas width"
+                  placeholder="100–4096"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted" htmlFor="custom-h">Height</label>
+                <input
+                  id="custom-h"
+                  type="number"
+                  min="100"
+                  max="4096"
+                  step="1"
+                  value={s.customH}
+                  onChange={(e) => set("customH", parseInt(e.target.value) || 0)}
+                  onBlur={(e) => {
+                    const v = parseInt(e.target.value) || 100;
+                    set("customH", Math.max(100, Math.min(4096, v)));
+                  }}
+                  className="input w-full"
+                  aria-label="Custom canvas height"
+                  placeholder="100–4096"
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

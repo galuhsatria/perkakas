@@ -49,6 +49,8 @@ export interface Settings {
   patternRotation: number;
   patternOpacity: number;
   canvas: string;
+  customW: number;
+  customH: number;
   size: number;
   padding: number;
   roundness: number;
